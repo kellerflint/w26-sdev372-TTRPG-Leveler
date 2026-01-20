@@ -30,9 +30,8 @@ export default (sequelize) => {
         level_required: {
             type: DataTypes.INTEGER
         },
-        prerequisite_required: DataTypes.Boolean,
-        default_value: {
-            type: Boolean,
+        prerequisite_required: {
+            type: DataTypes.BOOLEAN,
             defaultValue: false
         },
         prerequisite_list_id: {
