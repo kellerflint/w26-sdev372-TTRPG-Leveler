@@ -1,0 +1,90 @@
+.loading-state, .empty-state-display {
+  text-align: center;
+  margin-top: 2rem;
+}
+.error-state {
+  border-color: red;
+  margin-top: 2rem;
+}
+.error-text {
+  color: red;
+}
+.character-header-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  border-bottom: 1px solid var(--border-color);
+  padding-bottom: 1rem;
+  margin-bottom: 1.5rem;
+}
+.stats-summary {
+  display: flex;
+  gap: 1.5rem;
+  color: var(--text-muted);
+}
+.stat-adjuster {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-left: 0.5rem;
+}
+.stat-value {
+  font-weight: bold;
+  min-width: 1.5rem;
+  text-align: center;
+}
+.abilities-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
+  gap: 1rem;
+}
+.ability-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 1rem 0.5rem;
+}
+.ability-label {
+  font-size: 0.9rem;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+.ability-score {
+  font-size: 1.8rem;
+  font-weight: bold;
+}
+.ability-mod {
+  font-size: 1rem;
+  color: var(--accent-primary);
+}
+.languages-box {
+  margin: 0;
+  padding: 1rem;
+  background-color: #f9fafb;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--border-color);
+}
+.error-banner {
+  color: red;
+  margin-bottom: 1rem;
+  padding: 0.75rem;
+  background-color: #fef2f2;
+  border: 1px solid #fecaca;
+  border-radius: var(--radius-sm);
+}
+.action-footer {
+  display: flex;
+  gap: 1rem;
+  margin-top: 2rem;
+  padding-top: 1.5rem;
+  border-top: 1px solid var(--border-color);
+}
+.action-footer-right {
+  justify-content: flex-end;
+}
+.margin-bottom-sm { margin-bottom: 1rem; }
+.margin-bottom-md { margin-bottom: 1.5rem; }
+.margin-bottom-lg { margin-bottom: 2rem; }
+.margin-0 { margin: 0; }
+.flex-center { display: flex; align-items: center; }

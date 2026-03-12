@@ -6,7 +6,6 @@ import Header from './components/Header'
 import CharacterList from './components/CharacterList'
 import CharacterDisplay from './components/CharacterDisplay'
 import CreateCharacter from './components/CreateCharacter'
-import './App.css'
 
 function AppContent() {
   const { user } = useUser();
