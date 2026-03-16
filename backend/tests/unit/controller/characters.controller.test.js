@@ -8,7 +8,7 @@ import {
   getAllCharactersByUserId,
   updateCharacterController,
   deleteCharacterController,
-} from "../../controllers/characters.controller.js"; // Adjust path as needed
+} from "../../../controllers/characters.controller.js"; // Adjust path as needed
 
 // Import the repository functions (noting the alias used in your controller)
 import {
@@ -17,11 +17,11 @@ import {
   findAllCharactersByUserId,
   updateCharacter,
   deleteCharacter,
-} from "../../repos/characters.repo.js"; // Adjust path as needed
+} from "../../../repos/characters.repo.js"; // Adjust path as needed
 
 // 1. Mock the repository module
 // Note: We mock the ORIGINAL exported name (findCharacterById)
-jest.mock("../../repos/characters.repo.js", () => ({
+jest.mock("../../../repos/characters.repo.js", () => ({
   createCharacter: jest.fn(),
   findCharacterById: jest.fn(),
   findAllCharactersByUserId: jest.fn(),
