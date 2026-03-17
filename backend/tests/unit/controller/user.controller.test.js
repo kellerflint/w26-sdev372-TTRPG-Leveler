@@ -8,7 +8,7 @@ import {
   createNewUser,
   updateExistingUser,
   deleteExistingUser,
-} from "../../controllers/user.controller.js";
+} from "../../../controllers/user.controller.js";
 
 // Import all repository functions
 import {
@@ -17,10 +17,10 @@ import {
   createUser,
   updateUser,
   deleteUser,
-} from "../../repos/users.repo.js";
+} from "../../../repos/users.repo.js";
 
 // 1. Mock the entire repository module
-jest.mock("../../repos/users.repo.js", () => ({
+jest.mock("../../../repos/users.repo.js", () => ({
   getAllUsers: jest.fn(),
   getUserById: jest.fn(),
   createUser: jest.fn(),

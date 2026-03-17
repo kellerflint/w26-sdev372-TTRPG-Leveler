@@ -1,5 +1,5 @@
-import { sequelize } from '../config/database.js';
-import db from '../models/index.js';
+import { sequelize } from '../../config/database.js';
+import db from '../../models/index.js';
 import randomString from '../test_utilities.js';
 
 async function testTTRPGModels() {

@@ -1,6 +1,6 @@
 import assert from 'assert';
-import randomString from '../test_utilities.js';
-import db from '../../models/index.js';
+import randomString from '../../test_utilities.js';
+import db from '../../../models/index.js';
 import {
     createAbility,
     findAbilityById,
@@ -9,7 +9,7 @@ import {
     findAbilitiesByName,
     updateAbility,
     deleteAbility
-} from '../../repos/abilities.repo.js';
+} from '../../../repos/abilities.repo.js';
 
 
 async function testAbilityRepository() {

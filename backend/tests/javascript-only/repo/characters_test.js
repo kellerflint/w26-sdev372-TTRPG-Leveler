@@ -1,13 +1,13 @@
 import assert from 'assert';
-import db from '../../models/index.js';
-import { createUser, deleteUser } from '../../repos/users.repo.js';
+import db from '../../../models/index.js';
+import { createUser, deleteUser } from '../../../repos/users.repo.js';
 import {
   createCharacter,
   findCharacterById,
   findAllCharactersByUserId,
   updateCharacter,
-} from '../../repos/characters.repo.js';
-import randomString from '../test_utilities.js';
+} from '../../../repos/characters.repo.js';
+import randomString from '../../test_utilities.js';
 
 async function testCharacterRepository() {
   try {
