@@ -66,5 +66,6 @@ jobs:
       - name: e2e tests
         run: |
           npm install
-          npx cypress run
+          npx wait-on http://localhost:${{vars.NGINX_PORT}} --timeout 60000 
+          npx cypress run --config baseUrl=http://localhost:${{vars.NGINX_PORT}}
       
