@@ -68,6 +68,35 @@ services:
     networks:
       - app-network
 
+  test-runner:
+    build:
+      context: .
+      dockerfile: Dockerfile.test
+    volumes:
+      - ./cypress:/app/cypress
+      - ./frontend/test:/app/frontend/test
+      - ./backend/tests:/app/backend/tests
+    environment:
+      DB_HOST: mysql
+      DB_PORT: 3306
+      DB_USER: ${MYSQL_USER}
+      DB_PASSWORD: ${MYSQL_PASSWORD}
+      DB_NAME: ${MYSQL_DATABASE}
+      CYPRESS_baseUrl: http://nginx
+      VITE_API_BASE_URL: http://nginx/api
+      NODE_ENV: test
+    depends_on:
+      mysql:
+        condition: service_healthy
+      backend:
+        condition: service_started
+      nginx:
+        condition: service_started
+    networks:
+      - app-network
+    command: >
+      sh -c "npx cypress run && cd frontend && npm test && cd ../backend && npm test"
+
 volumes:
   mysql_data:
 
