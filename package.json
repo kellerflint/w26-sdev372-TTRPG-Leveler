@@ -1,9 +1,13 @@
 {
-  "name": "example-repo-e2e",
+  "name": "ttrpg-leveler",
   "version": "1.0.0",
   "scripts": {
     "cypress:open": "cypress open",
-    "cypress:run": "cypress run"
+    "cypress:run": "cypress run",
+    "test": "docker compose run --rm test-runner sh -c \"npx cypress run && cd frontend && npm test && cd ../backend && npm test\"",
+    "test:e2e": "docker compose run --rm test-runner sh -c \"npx cypress run\"",
+    "test:frontend": "docker compose run --rm test-runner sh -c \"cd frontend && npm test\"",
+    "test:backend": "docker compose run --rm test-runner sh -c \"cd backend && npm test\""
   },
   "devDependencies": {
     "cypress": "^13.6.6"
