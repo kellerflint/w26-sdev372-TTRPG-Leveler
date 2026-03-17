@@ -14,10 +14,8 @@ describe("User Integration - Get Player", () => {
     await sequelize.sync({ force: true });
   });
 
-  afterEach(async () => {
-    await sequelize.query("SET FOREIGN_KEY_CHECKS = 0");
-    await sequelize.truncate({ force: true });
-    await sequelize.query("SET FOREIGN_KEY_CHECKS = 1");
+  beforeEach(async () => {
+    await sequelize.sync({ force: true });
   });
 
   afterAll(async () => {
@@ -27,12 +25,15 @@ describe("User Integration - Get Player", () => {
   it("should successfully create and then retrieve a player", async () => {
     const newUser = {
       user_name: "Marisha Ray",
-      email: "marisha@criticalrole.com",
-      password: "keyleth_is_dope",
+      user_email: "marisha@criticalrole.com",
+      user_password: "keyleth_is_dope",
     };
 
     const createRes = await request(app).post("/api/users").send(newUser);
 
+    if (createRes.status === 500) {
+      console.log("500 Error Body:", createRes.body);
+    }
     expect(createRes.status).toBe(201);
     const playerId = createRes.body.id;
 
@@ -40,9 +41,9 @@ describe("User Integration - Get Player", () => {
 
     expect(getRes.status).toBe(200);
     expect(getRes.body.user_name).toBe("Marisha Ray");
-    expect(getRes.body.email).toBe("marisha@criticalrole.com");
+    expect(getRes.body.user_email).toBe("marisha@criticalrole.com");
 
-    expect(getRes.body).not.toHaveProperty("password");
+    expect(getRes.body).not.toHaveProperty("user_password");
   });
 
   it("should return 404 for a non-existent player", async () => {
