@@ -37,6 +37,9 @@ describe("User Integration - Get Player", () => {
 
     const createRes = await request(app).post("/api/users").send(newUser);
 
+    if (createRes.status === 500) {
+      console.log("500 Error Body:", createRes.body);
+    }
     expect(createRes.status).toBe(201);
     const playerId = createRes.body.id;
 
