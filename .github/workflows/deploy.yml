@@ -9,6 +9,7 @@ on:
 jobs:
   deploy:
     runs-on: ubuntu-latest
+    timeout-minutes: 20
     if: ${{ github.event.workflow_run.conclusion == 'success' }}
     steps:
       - name: Install Tailscale
@@ -28,5 +29,6 @@ jobs:
             cd ${{ secrets.DEPLOY_PATH }}
             git pull origin main
             docker compose up --build -d --scale test-runner=0
-            sleep 5
-            docker compose ps --services --filter "status=running" | grep -q . && echo "Deployment successful" || exit 1
+            docker compose wait mysql
+            docker compose ps --services --filter "status=running" | grep -qE "^(mysql|backend|nginx)$" || exit 1
+            echo "Deployment successful"
