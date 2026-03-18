@@ -55,7 +55,7 @@ jobs:
           npm test
       
       - name: build image
-        run: docker compose build --scale test-runner=0
+        run: docker compose build mysql backend nginx
 
       - name: start docker for e2e & integration tests
         run: docker compose up -d --scale test-runner=0
