@@ -39,11 +39,8 @@ jobs:
       - name: checkout
         uses: actions/checkout@v4
 
-      - name: generate .env file for docker compose
+      - name: generate .env file
         run: env > .env
-
-      - name: build image
-        run: docker compose build
 
       - name: backend unit tests
         working-directory: ./backend
@@ -56,9 +53,12 @@ jobs:
         run: |
           npm install
           npm test
+      
+      - name: build image
+        run: docker compose build mysql backend nginx
 
       - name: start docker for e2e & integration tests
-        run: docker compose up -d
+        run: docker compose up -d --scale test-runner=0
 
       - name: backend integration tests
         run: docker exec my_backend npm run test:integration
