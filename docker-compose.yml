@@ -43,6 +43,8 @@ services:
     depends_on:
       mysql:
         condition: service_healthy
+      db-seeder:
+        condition: service_completed_successfully
     restart: unless-stopped
     networks:
       - app-network
@@ -68,6 +70,29 @@ services:
     networks:
       - app-network
 
+  # Database Seeder
+  db-seeder:
+    image: mysql:8.4
+    container_name: my_db_seeder
+    volumes:
+      - ./database:/scripts
+    environment:
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+      MYSQL_DATABASE: ${MYSQL_DATABASE}
+    command: >
+      sh -c "mysql -h mysql -u root -p$${MYSQL_ROOT_PASSWORD} -e \"CREATE DATABASE IF NOT EXISTS ttrpg_test_db;\" && \
+      if [ -z \"$$(mysql -h mysql -u root -p$${MYSQL_ROOT_PASSWORD} -D $${MYSQL_DATABASE} -N -s -e 'SELECT id FROM class_reference LIMIT 1;' 2>/dev/null)\" ]; then \
+        echo 'Seeding database...'; \
+        mysql -h mysql -u root -p$${MYSQL_ROOT_PASSWORD} $${MYSQL_DATABASE} < /scripts/init_and_seed.sql; \
+      else \
+        echo 'Database already seeded, skipping...'; \
+      fi"
+    depends_on:
+      mysql:
+        condition: service_healthy
+    networks:
+      - app-network
+
   test-runner:
     build:
       context: .
@@ -79,9 +104,9 @@ services:
     environment:
       DB_HOST: mysql
       DB_PORT: 3306
-      DB_USER: ${MYSQL_USER}
-      DB_PASSWORD: ${MYSQL_PASSWORD}
-      DB_NAME: ${MYSQL_DATABASE}
+      DB_USER: root
+      DB_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+      DB_NAME: ttrpg_test_db
       CYPRESS_baseUrl: http://nginx
       VITE_API_BASE_URL: http://nginx/api
       NODE_ENV: test
