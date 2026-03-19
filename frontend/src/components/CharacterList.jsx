@@ -51,7 +51,7 @@ const CharacterList = () => {
                             <div className="avatar">
                                 {char.char_name.charAt(0).toUpperCase()}
                             </div>
-                            <div>
+                            <div className="character-info">
                                 <h3 className="avatar-title">{char.char_name}</h3>
                                 <div className="text-muted-sm">
                                     Level {char.total_level} • HP {char.total_hp}
