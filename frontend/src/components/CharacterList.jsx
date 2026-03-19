@@ -36,12 +36,13 @@ const CharacterList = () => {
         <div className="container">
             <div className="page-header">
                 <h2>Your Characters</h2>
-                <Link to="/create/character" className="btn btn-primary">Create New Hero</Link>
+                <Link to="/create/character" className="btn btn-primary">+Create a Character</Link>
             </div>
 
             {characters.length === 0 ? (
                 <div className="card empty-state">
-                    <p>No characters found. Create one to get started!</p>
+                    <h3>No Characters Found</h3>
+                    <p>You don't have any characters yet.</p>
                 </div>
             ) : (
                 <div className="grid-select">
