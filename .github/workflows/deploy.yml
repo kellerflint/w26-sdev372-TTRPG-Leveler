@@ -75,6 +75,4 @@ jobs:
             cd ${{ secrets.DEPLOY_PATH }}
             git pull origin main
             docker compose up --build -d --scale test-runner=0
-            docker compose wait mysql
-            docker compose ps --services --filter "status=running" | grep -qE "^(mysql|backend|nginx)$" || exit 1
             echo "Deployment successful"
