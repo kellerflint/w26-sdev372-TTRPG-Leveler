@@ -1,0 +1,71 @@
+name: Tests
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+env:
+  ## General configuration
+  NODE_ENV: ${{vars.NODE_ENV}}
+
+  ## TS OAuth configuration
+  TS_OAUTH_CLIENT_ID: ${{secrets.TS_OAUTH_CLIENT_ID}}
+  TS_OAUTH_SECRET: ${{secrets.TS_OAUTH_SECRET}}
+
+  ## Database configuration
+  MYSQL_DATABASE: ${{vars.MYSQL_DATABASE}}
+  MYSQL_USER: ${{vars.MYSQL_USER}}
+  MYSQL_PASSWORD: ${{secrets.MYSQL_PASSWORD}}
+  MYSQL_ROOT_PASSWORD: ${{secrets.MYSQL_ROOT_PASSWORD}}
+  DB_HOST: ${{vars.DB_HOST}}
+  DB_PORT: ${{vars.DB_PORT}}
+
+  ## Backend configuration
+  BACKEND_HOST: ${{vars.BACKEND_HOST}}
+  BACKEND_PORT: ${{vars.BACKEND_PORT}}
+  INTERNAL_PORT: ${{vars.INTERNAL_PORT}}
+
+  ## Frontend configuration
+  NGINX_PORT: ${{vars.NGINX_PORT}}
+  VITE_API_BASE_URL: ${{vars.VITE_API_BASE_URL}}
+
+jobs:
+  tests:
+    runs-on: ubuntu-latest
+    steps:
+      - name: checkout
+        uses: actions/checkout@v4
+
+      - name: generate .env file
+        run: env > .env
+
+      - name: backend unit tests
+        working-directory: ./backend
+        run: |
+          npm install
+          npm run test:unit
+
+      - name: frontend unit tests
+        working-directory: ./frontend
+        run: |
+          npm install
+          npm test
+      
+      - name: build image
+        run: docker compose build mysql backend nginx
+
+      - name: start docker for e2e & integration tests
+        run: docker compose up -d --scale test-runner=0
+
+      - name: backend integration tests
+        run: docker exec my_backend npm run test:integration
+      
+      - name: e2e tests
+        run: |
+          npm install
+          npx wait-on http://localhost:${{vars.NGINX_PORT}} --timeout 60000 
+          npx cypress run --config baseUrl=http://localhost:${{vars.NGINX_PORT}}
+      

@@ -1,9 +1,11 @@
+import './Header.css';
+
 function Header() {
     return (
-        <header>
-            <h1>TTRPG Leveler</h1>
-            <nav>
-                <a href="#characters">Characters</a>
+        <header className="header">
+            <h1 className="header-title">TTRPG Leveler</h1>
+            <nav className="header-nav">
+                <a href="/">Characters</a>
                 <a href="#profile">Profile</a>
             </nav>
         </header>

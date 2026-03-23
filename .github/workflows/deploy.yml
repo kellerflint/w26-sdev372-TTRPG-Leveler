@@ -1,0 +1,79 @@
+name: Deploy
+
+on:
+  workflow_run:
+    workflows: [Tests]
+    types: [completed]
+    branches: [main]
+  workflow_dispatch:
+env:
+  ## General configuration
+  NODE_ENV: ${{vars.NODE_ENV}}
+
+  ## TS OAuth configuration
+  TS_OAUTH_CLIENT_ID: ${{secrets.TS_OAUTH_CLIENT_ID}}
+  TS_OAUTH_SECRET: ${{secrets.TS_OAUTH_SECRET}}
+
+  ## Database configuration
+  MYSQL_DATABASE: ${{vars.MYSQL_DATABASE}}
+  MYSQL_USER: ${{vars.MYSQL_USER}}
+  MYSQL_PASSWORD: ${{secrets.MYSQL_PASSWORD}}
+  MYSQL_ROOT_PASSWORD: ${{secrets.MYSQL_ROOT_PASSWORD}}
+  DB_HOST: ${{vars.DB_HOST}}
+  DB_PORT: ${{vars.DB_PORT}}
+
+  ## Backend configuration
+  BACKEND_HOST: ${{vars.BACKEND_HOST}}
+  BACKEND_PORT: ${{vars.BACKEND_PORT}}
+  INTERNAL_PORT: ${{vars.INTERNAL_PORT}}
+
+  ## Frontend configuration
+  NGINX_PORT: ${{vars.NGINX_PORT}}
+  VITE_API_BASE_URL: ${{vars.VITE_API_BASE_URL}}
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    if: ${{ github.event_name == 'workflow_dispatch' || github.event.workflow_run.conclusion == 'success' }}
+    steps:
+      - name: Install Tailscale
+        uses: tailscale/github-action@v4
+        with:
+          oauth-client-id: ${{ secrets.TS_OAUTH_CLIENT_ID }}
+          oauth-secret: ${{ secrets.TS_OAUTH_SECRET }}
+          tags: tag:deploy
+      - name: Write .env to server
+        uses: appleboy/ssh-action@v1
+        with:
+          host: ${{ secrets.DEPLOY_HOST }}
+          username: ${{ secrets.DEPLOY_USER }}
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          script: |
+            cat > ${{ secrets.DEPLOY_PATH }}/.env << 'EOF'
+            NODE_ENV=${{ vars.NODE_ENV }}
+            MYSQL_DATABASE=${{ vars.MYSQL_DATABASE }}
+            MYSQL_USER=${{ vars.MYSQL_USER }}
+            MYSQL_PASSWORD=${{ secrets.MYSQL_PASSWORD }}
+            MYSQL_ROOT_PASSWORD=${{ secrets.MYSQL_ROOT_PASSWORD }}
+            DB_HOST=${{ vars.DB_HOST }}
+            DB_PORT=${{ vars.DB_PORT }}
+            BACKEND_HOST=${{ vars.BACKEND_HOST }}
+            BACKEND_PORT=${{ vars.BACKEND_PORT }}
+            INTERNAL_PORT=${{ vars.INTERNAL_PORT }}
+            FRONTEND_PORT=80
+            NGINX_PORT=${{ vars.NGINX_PORT }}
+            VITE_API_BASE_URL=${{ vars.VITE_API_BASE_URL }}
+            EOF
+      - name: Deploy via SSH
+        uses: appleboy/ssh-action@v1
+        with:
+          host: ${{ secrets.DEPLOY_HOST }}
+          username: ${{ secrets.DEPLOY_USER }}
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          command_timeout: 20m
+          script: |
+            cd ${{ secrets.DEPLOY_PATH }}
+            git pull origin main
+            docker compose up --build -d mysql backend nginx
+            exit 0

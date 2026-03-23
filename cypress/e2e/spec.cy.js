@@ -11,7 +11,13 @@ describe("Homepage Navigation and Empty State", () => {
   });
 
   it("should display the correct empty state for new users", () => {
+    // Stub the characters endpoint to return an empty array
+    cy.intercept("GET", "**/api/characters", { body: [] }).as("getCharacters");
+
     cy.visit("/");
+
+    // Wait for the API call to finish
+    cy.wait("@getCharacters");
 
     // Verify the empty state messaging
     cy.contains("No Characters Found").should("be.visible");

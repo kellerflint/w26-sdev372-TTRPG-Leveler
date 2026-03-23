@@ -18,8 +18,8 @@ services:
       test: ["CMD-SHELL", "mysqladmin ping -h localhost -u root -p${MYSQL_ROOT_PASSWORD}"]
       interval: 10s
       timeout: 5s
-      retries: 5
-      start_period: 30s
+      retries: 10
+      start_period: 60s
     restart: unless-stopped
     networks:
       - app-network
@@ -43,6 +43,8 @@ services:
     depends_on:
       mysql:
         condition: service_healthy
+      db-seeder:
+        condition: service_completed_successfully
     restart: unless-stopped
     networks:
       - app-network
@@ -67,6 +69,59 @@ services:
     restart: unless-stopped
     networks:
       - app-network
+
+  # Database Seeder
+  db-seeder:
+    image: mysql:8.4
+    container_name: my_db_seeder
+    volumes:
+      - ./database:/scripts
+    environment:
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+      MYSQL_DATABASE: ${MYSQL_DATABASE}
+    command: >
+      timeout 120s sh -c "until mysqladmin ping -h mysql -u root -p$${MYSQL_ROOT_PASSWORD} --silent; do echo 'Waiting for MySQL TCP...'; sleep 2; done; \
+      mysql -h mysql -u root -p$${MYSQL_ROOT_PASSWORD} -e \"CREATE DATABASE IF NOT EXISTS ttrpg_test_db;\" && \
+      if [ -z \"$$(mysql -h mysql -u root -p$${MYSQL_ROOT_PASSWORD} -D $${MYSQL_DATABASE} -N -s -e 'SELECT id FROM class_reference LIMIT 1;' 2>/dev/null)\" ]; then \
+        echo 'Seeding database...'; \
+        mysql -h mysql -u root -p$${MYSQL_ROOT_PASSWORD} $${MYSQL_DATABASE} < /scripts/init_and_seed.sql; \
+      else \
+        echo 'Database already seeded, skipping...'; \
+      fi"
+    depends_on:
+      mysql:
+        condition: service_healthy
+    networks:
+      - app-network
+
+  test-runner:
+    build:
+      context: .
+      dockerfile: Dockerfile.test
+    volumes:
+      - ./cypress:/app/cypress
+      - ./frontend/test:/app/frontend/test
+      - ./backend/tests:/app/backend/tests
+    environment:
+      DB_HOST: mysql
+      DB_PORT: 3306
+      DB_USER: root
+      DB_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+      DB_NAME: ttrpg_test_db
+      CYPRESS_baseUrl: http://nginx
+      VITE_API_BASE_URL: http://nginx/api
+      NODE_ENV: test
+    depends_on:
+      mysql:
+        condition: service_healthy
+      backend:
+        condition: service_started
+      nginx:
+        condition: service_started
+    networks:
+      - app-network
+    command: >
+      sh -c "npx cypress run && cd frontend && npm test && cd ../backend && npm test"
 
 volumes:
   mysql_data:
