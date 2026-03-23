@@ -1,6 +1,6 @@
 -- Create Database
-CREATE DATABASE IF NOT EXISTS ttrpg_leveler;
-USE ttrpg_leveler;
+CREATE DATABASE IF NOT EXISTS ttrpg_db;
+USE ttrpg_db;
 
 -- Create Users Table
 CREATE TABLE IF NOT EXISTS users (
@@ -95,18 +95,18 @@ CREATE TABLE IF NOT EXISTS character_abilities (
 );
 
 -- 1. Insert a test user
-INSERT INTO users (user_name, user_email, user_password)
+INSERT IGNORE INTO users (user_name, user_email, user_password)
 VALUES ('testuser', 'testuser@example.com', 'password123');
 
 -- 2. Insert base class
-INSERT INTO class_reference (class_name, class_type, hit_die, primary_stat)
+INSERT IGNORE INTO class_reference (class_name, class_type, hit_die, primary_stat)
 VALUES 
 ('Fighter', 'Martial', 10, 'STR'),
 ('Wizard', 'Arcane', 6, 'INT'),
 ('Cleric', 'Divine', 8, 'WIS');
 
 -- 3. Add abilities (skills, feats, class features)
-INSERT INTO abilities (class_id, ability_name, ability_description, ability_type, level_required)
+INSERT IGNORE INTO abilities (class_id, ability_name, ability_description, ability_type, level_required)
 VALUES
 -- Class features
 ((SELECT id FROM class_reference WHERE class_name = 'Fighter'),
@@ -158,7 +158,7 @@ VALUES
 ((SELECT id FROM class_reference WHERE class_name = 'Fighter'),
  'Unarmed Fighting', 
  'Your unarmed strikes can deal bludgeoning damage equal to 1d6 + your Strength modifier. If you are not weilding any weaposn or a shield, your d6 becomes a d8. At the start of each of your turns, you can deal 1d4 bludgeoning damage to one creature you are grappling.', 
- 'Fighting Style', 1)
+ 'Fighting Style', 1),
 
 
 -- Wizard Features
@@ -282,7 +282,7 @@ VALUES
 (NULL, 'Persuasion', 'Your Charisma (Persuasion) checks cover attempts to influence someone or a group of people with tact, social graces, or good nature.', 'Skill', 1);
 
 -- 4.1. Insert level unlocks for Fighter level 1
-INSERT INTO level_unlocks (class_id, level, unlock_type, choice_count, config, infoblock)
+INSERT IGNORE INTO level_unlocks (class_id, level, unlock_type, choice_count, config, infoblock)
 VALUES
 -- Ability Score Assignment at character creation - Standard Array
 (NULL, 1, 'Ability Scores', 1,
@@ -395,7 +395,7 @@ VALUES
  'Fighters are proficient with simple and martial weapons.');
 
 -- 4.2. Insert level unlocks for Wizard level 1
-INSERT INTO level_unlocks (class_id, level, unlock_type, choice_count, config, infoblock)
+INSERT IGNORE INTO level_unlocks (class_id, level, unlock_type, choice_count, config, infoblock)
 VALUES
 -- Hit Points
 ((SELECT id FROM class_reference WHERE class_name = 'Wizard'), 1, 'Hit Points', 1,
@@ -456,7 +456,7 @@ VALUES
  'Choose 2 skill proficiencies from: Arcana, History, Insight, Investigation, Medicine, or Religion.');
 
 -- 4.3. Insert level unlocks for Cleric level 1
-INSERT INTO level_unlocks (class_id, level, unlock_type, choice_count, config, infoblock)
+INSERT IGNORE INTO level_unlocks (class_id, level, unlock_type, choice_count, config, infoblock)
 VALUES
 -- Hit Points
 ((SELECT id FROM class_reference WHERE class_name = 'Cleric'), 1, 'Hit Points', 1,
@@ -532,7 +532,7 @@ VALUES
  'Choose 2 skill proficiencies from: History, Insight, Medicine, Persuasion, or Religion.');
 
 -- Insert "Test Hero" character
-INSERT INTO characters (
+INSERT IGNORE INTO characters (
     user_id, char_name, total_level, total_hp, initiative_bonus, 
     strength, dexterity, constitution, intelligence, wisdom, charisma, languages
 )
@@ -552,7 +552,7 @@ VALUES (
 );
 
 -- Assign "Test Hero" to Fighter class level 1
-INSERT INTO character_classes (character_id, class_id, class_level)
+INSERT IGNORE INTO character_classes (character_id, class_id, class_level)
 VALUES (
     (SELECT id FROM characters WHERE char_name = 'Test Hero'),
     (SELECT id FROM class_reference WHERE class_name = 'Fighter'),
@@ -560,7 +560,7 @@ VALUES (
 );
 
 -- Class Features: Second Wind
-INSERT INTO character_abilities (character_id, ability_id, proficient, proficiency_bonus, ability_level, number_of_uses)
+INSERT IGNORE INTO character_abilities (character_id, ability_id, proficient, proficiency_bonus, ability_level, number_of_uses)
 VALUES (
     (SELECT id FROM characters WHERE char_name = 'Test Hero'),
     (SELECT id FROM abilities WHERE ability_name = 'Second Wind'),
@@ -571,7 +571,7 @@ VALUES (
 );
 
 -- Fighting Style: Defense (auto-picked)
-INSERT INTO character_abilities (character_id, ability_id, proficient, proficiency_bonus)
+INSERT IGNORE INTO character_abilities (character_id, ability_id, proficient, proficiency_bonus)
 VALUES (
     (SELECT id FROM characters WHERE char_name = 'Test Hero'),
     (SELECT id FROM abilities WHERE ability_name = 'Defense Fighting Style'),
@@ -580,7 +580,7 @@ VALUES (
 );
 
 -- Saving Throws: Strength & Constitution
-INSERT INTO character_abilities (character_id, ability_id, proficient, proficiency_bonus)
+INSERT IGNORE INTO character_abilities (character_id, ability_id, proficient, proficiency_bonus)
 VALUES 
     ((SELECT id FROM characters WHERE char_name = 'Test Hero'),
      (SELECT id FROM abilities WHERE ability_name = 'Strength Save'),
@@ -590,7 +590,7 @@ VALUES
      TRUE, 0);
 
 -- Armor Proficiencies: Light, Medium, Heavy, Shields
-INSERT INTO character_abilities (character_id, ability_id, proficient, proficiency_bonus)
+INSERT IGNORE INTO character_abilities (character_id, ability_id, proficient, proficiency_bonus)
 VALUES 
     ((SELECT id FROM characters WHERE char_name = 'Test Hero'),
      (SELECT id FROM abilities WHERE ability_name = 'Light Armor'), TRUE, 0),
@@ -602,7 +602,7 @@ VALUES
      (SELECT id FROM abilities WHERE ability_name = 'Shields'), TRUE, 0);
 
 -- Weapon Proficiencies: Simple & Martial
-INSERT INTO character_abilities (character_id, ability_id, proficient, proficiency_bonus)
+INSERT IGNORE INTO character_abilities (character_id, ability_id, proficient, proficiency_bonus)
 VALUES 
     ((SELECT id FROM characters WHERE char_name = 'Test Hero'),
      (SELECT id FROM abilities WHERE ability_name = 'Simple Weapons'), TRUE, 0),
@@ -610,7 +610,7 @@ VALUES
      (SELECT id FROM abilities WHERE ability_name = 'Martial Weapons'), TRUE, 0);
 
 -- Skill Proficiencies: Athletics & Perception (choose 2)
-INSERT INTO character_abilities (character_id, ability_id, proficient, proficiency_bonus)
+INSERT IGNORE INTO character_abilities (character_id, ability_id, proficient, proficiency_bonus)
 VALUES
     ((SELECT id FROM characters WHERE char_name = 'Test Hero'),
      (SELECT id FROM abilities WHERE ability_name = 'Athletics'), TRUE, 3),
@@ -618,7 +618,7 @@ VALUES
      (SELECT id FROM abilities WHERE ability_name = 'Perception'), TRUE, 2);
 
 -- 6. Insert "Morgan the Wizard" (Test Wizard)
-INSERT INTO characters (
+INSERT IGNORE INTO characters (
     user_id, char_name, total_level, total_hp, initiative_bonus, 
     strength, dexterity, constitution, intelligence, wisdom, charisma, languages
 )
@@ -632,7 +632,7 @@ VALUES (
     'Common, Draconic'
 );
 
-INSERT INTO character_classes (character_id, class_id, class_level)
+INSERT IGNORE INTO character_classes (character_id, class_id, class_level)
 VALUES (
     (SELECT id FROM characters WHERE char_name = 'Morgan the Wizard'),
     (SELECT id FROM class_reference WHERE class_name = 'Wizard'),
@@ -640,7 +640,7 @@ VALUES (
 );
 
 -- Automatic Features
-INSERT INTO character_abilities (character_id, ability_id, proficient, proficiency_bonus)
+INSERT IGNORE INTO character_abilities (character_id, ability_id, proficient, proficiency_bonus)
 VALUES 
     ((SELECT id FROM characters WHERE char_name = 'Morgan the Wizard'),
      (SELECT id FROM abilities WHERE ability_name = 'Arcane Recovery'), TRUE, 0),
@@ -656,7 +656,7 @@ VALUES
      (SELECT id FROM abilities WHERE ability_name = 'Simple Weapons'), TRUE, 0);
 
 -- Chosen Skills
-INSERT INTO character_abilities (character_id, ability_id, proficient, proficiency_bonus)
+INSERT IGNORE INTO character_abilities (character_id, ability_id, proficient, proficiency_bonus)
 VALUES 
     ((SELECT id FROM characters WHERE char_name = 'Morgan the Wizard'),
      (SELECT id FROM abilities WHERE ability_name = 'Arcana'), TRUE, 2),
@@ -664,7 +664,7 @@ VALUES
      (SELECT id FROM abilities WHERE ability_name = 'Investigation'), TRUE, 2);
 
 -- 7. Insert "Cassandra the Cleric" (Test Cleric)
-INSERT INTO characters (
+INSERT IGNORE INTO characters (
     user_id, char_name, total_level, total_hp, initiative_bonus, 
     strength, dexterity, constitution, intelligence, wisdom, charisma, languages
 )
@@ -678,7 +678,7 @@ VALUES (
     'Common, Celestial, Dwarvish'
 );
 
-INSERT INTO character_classes (character_id, class_id, class_level)
+INSERT IGNORE INTO character_classes (character_id, class_id, class_level)
 VALUES (
     (SELECT id FROM characters WHERE char_name = 'Cassandra the Cleric'),
     (SELECT id FROM class_reference WHERE class_name = 'Cleric'),
@@ -686,7 +686,7 @@ VALUES (
 );
 
 -- Automatic Features
-INSERT INTO character_abilities (character_id, ability_id, proficient, proficiency_bonus)
+INSERT IGNORE INTO character_abilities (character_id, ability_id, proficient, proficiency_bonus)
 VALUES 
     ((SELECT id FROM characters WHERE char_name = 'Cassandra the Cleric'),
      (SELECT id FROM abilities WHERE ability_name = 'Spellcasting (Cleric)'), TRUE, 0),
@@ -704,7 +704,7 @@ VALUES
      (SELECT id FROM abilities WHERE ability_name = 'Simple Weapons'), TRUE, 0);
 
 -- Chosen Subclass/Skills
-INSERT INTO character_abilities (character_id, ability_id, proficient, proficiency_bonus)
+INSERT IGNORE INTO character_abilities (character_id, ability_id, proficient, proficiency_bonus)
 VALUES 
     ((SELECT id FROM characters WHERE char_name = 'Cassandra the Cleric'),
      (SELECT id FROM abilities WHERE ability_name = 'Life Domain'), TRUE, 0),

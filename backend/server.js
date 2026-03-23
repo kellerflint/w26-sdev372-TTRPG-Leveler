@@ -7,6 +7,7 @@ import cors from 'cors';
 import dotenv from 'dotenv';
 import { testConnection } from './config/database.js';
 import characterRoutes from './routes/characters.js';
+import classRoutes from './routes/classes.js';
 
 dotenv.config();
 
@@ -27,6 +28,7 @@ app.use((req, res, next) => {
 
 // Routes
 app.use('/api/characters', characterRoutes);
+app.use('/api/classes', classRoutes);
 
 // Health check endpoint
 app.get('/api/health', (req, res) => {
@@ -44,7 +46,8 @@ const rootHandler = (req, res) => {
         version: '1.0.0',
         endpoints: {
             health: '/api/health',
-            characters: '/api/characters'
+            characters: '/api/characters',
+            classes: '/api/classes'
         }
     });
 };

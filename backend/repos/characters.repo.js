@@ -1,8 +1,23 @@
 import db from '../models/index.js';
-import {Op} from 'sequelize';
+import { Op } from 'sequelize';
 
 export async function createCharacter(characterData) {
-    return await db.Characters.create(characterData);
+    const { class_id, ...charFields } = characterData;
+
+    // If a class_id is provided, wrap in a transaction
+    if (class_id) {
+        return await db.sequelize.transaction(async (t) => {
+            const character = await db.Characters.create(charFields, { transaction: t });
+            await db.CharacterClasses.create({
+                character_id: character.id,
+                class_id: class_id,
+                class_level: 1
+            }, { transaction: t });
+            return character;
+        });
+    }
+
+    return await db.Characters.create(charFields);
 }
 
 export async function findCharacterById(characterId) {
